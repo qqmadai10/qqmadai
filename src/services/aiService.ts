@@ -3,9 +3,6 @@ interface ChatHistoryItem {
   text: string;
 }
 
-// 直接从加载器导入（这个文件每次构建都会更新）
-import { callAPI } from 'https://qqmadai10.github.io/qqmadai/api-loader.js';
-
 export const sendMessageToAIStream = async (
   userMessage: string,
   history: ChatHistoryItem[],
@@ -25,12 +22,19 @@ export const sendMessageToAIStream = async (
 
     console.log('Sending messages:', messages);
 
-    // 使用加载器发送请求
-    const response = await callAPI(messages);
+    // 直接请求已经确认存在的 api.js
+    const response = await fetch('https://qqmadai10.github.io/qqmadai/api.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messages }),
+      signal
+    });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch response');
+      const errorData = await response.text();
+      throw new Error(errorData || 'Failed to fetch response');
     }
 
     const reader = response.body?.getReader();
@@ -62,11 +66,6 @@ export const sendMessageToAIStream = async (
       }
     }
   } catch (error: any) {
-    if (error.name === 'AbortError') {
-      console.log('Generation stopped by user');
-      onChunk('\n\n*[已停止生成]*');
-      return;
-    }
     console.error('AI Service Error:', error);
     onChunk('\n\n思维连接中断了，请检查网络连接。');
   }
