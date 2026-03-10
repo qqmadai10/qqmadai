@@ -14,11 +14,6 @@ if (!apiKey) {
   process.exit(1);
 }
 
-// 生成绝对唯一的文件名（时间戳+随机数）
-const timestamp = Date.now();
-const random = Math.floor(Math.random() * 10000);
-const apiFileName = `api-${timestamp}-${random}.js`;
-
 // API 函数代码
 const apiFunctionCode = `
 export default async function handler(req, res) {
@@ -68,21 +63,30 @@ if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
+// 使用固定文件名，确保与前端一致
+const apiFileName = 'api.js';
+
 // 写入 API 文件
 fs.writeFileSync(path.join(distDir, apiFileName), apiFunctionCode);
 console.log(`✅ API 函数已生成到 dist/${apiFileName}`);
 
-// 写入配置文件（前端会读取这个文件来知道 API 文件名）
-const configCode = `export const API_FILE = '${apiFileName}';`;
-fs.writeFileSync(path.join(distDir, 'api-config.js'), configCode);
-console.log(`✅ 配置文件已生成到 dist/api-config.js`);
+// 删除其他旧的动态文件（避免混乱）
+try {
+  const files = fs.readdirSync(distDir);
+  files.forEach(file => {
+    if (file.startsWith('api-') && file.endsWith('.js') && file !== apiFileName) {
+      fs.unlinkSync(path.join(distDir, file));
+      console.log(`🗑️ 删除旧文件: ${file}`);
+    }
+  });
+} catch (err) {
+  console.log('清理旧文件时出错:', err.message);
+}
 
-// 写入加载器文件（前端直接引用这个文件）
+// 可选：生成一个简单的加载器（如果前端需要）
 const loaderCode = `
-import { API_FILE } from './api-config.js';
-
 export async function callAPI(messages) {
-  const response = await fetch(\`https://qqmadai10.github.io/qqmadai/\${API_FILE}\`, {
+  const response = await fetch('https://qqmadai10.github.io/qqmadai/api.js', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages })
