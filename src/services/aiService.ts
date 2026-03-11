@@ -12,6 +12,7 @@ export const sendMessageToAIStream = async (
   signal?: AbortSignal
 ): Promise<void> => {
   try {
+    // 构造 messages 数组（符合智谱 AI 格式）
     const messages = [
       ...history.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'assistant',
@@ -22,8 +23,8 @@ export const sendMessageToAIStream = async (
 
     console.log('Sending messages:', messages);
 
-    // 直接请求已经确认存在的 api.js
-    const response = await fetch('https://qqmadai10.github.io/qqmadai/api.js', {
+    // 直接请求 Vercel 上的 API（注意这里是 /api/chat）
+    const response = await fetch('https://qqmadai.vercel.app/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
