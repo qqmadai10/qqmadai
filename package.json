@@ -44,7 +44,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "start": "node server.ts",
-   "build": "echo 'Skipping build'",
+   "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist -r https://github.com/qqmadai10/qqmadai.git"
