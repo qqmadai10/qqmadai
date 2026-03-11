@@ -1,3 +1,9 @@
 {
-  "buildCommand": null
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3.0.0"
+    }
+  },
+  "buildCommand": null,
+  "outputDirectory": null
 }
