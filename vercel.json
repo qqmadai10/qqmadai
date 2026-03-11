@@ -1,5 +1,14 @@
 {
-  "buildCommand": null,
-  "outputDirectory": null,
-  "installCommand": "npm install"
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/$1"
+    }
+  ]
 }
